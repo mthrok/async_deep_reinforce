@@ -20,7 +20,7 @@ INITIAL_ALPHA_HIGH = 1e-2   # log_uniform high limit for learning rate
 PARALLEL_SIZE = 8 # parallel thread size
 ROM = os.environ.get('ROM', "roms/breakout.bin")
 ACTION_SIZE = _get_action_size(ROM.encode('ascii'))
-LOG_FILE = 'a3c/%s' % ROM.split('.')[0].split('/')[1]
+LOG_FILE = 'log/%s' % ROM.split('.')[0].split('/')[1]
 CHECKPOINT_DIR = LOG_FILE
 
 INITIAL_ALPHA_LOG_RATE = 0.4226 # log_uniform interpolate rate for learning rate (around 7 * 10^-4)
