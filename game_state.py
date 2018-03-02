@@ -6,10 +6,11 @@ import numpy as np
 from ale_python_interface import ALEInterface
 
 import constants
+from game_recorder import Recorder
 
 
 class GameState(object):
-    def __init__(self, rand_seed, display=False, no_op_max=7):
+    def __init__(self, rand_seed, display=False, no_op_max=7, record_dir=None):
         self.ale = ALEInterface()
         self.ale.setInt(b'random_seed', rand_seed)
         self.ale.setFloat(b'repeat_action_probability', 0.0)
@@ -27,6 +28,10 @@ class GameState(object):
 
         # height=210, width=160
         self._screen = np.empty((210, 160, 1), dtype=np.uint8)
+
+        self.recorder = None
+        if record_dir is not None:
+            self.recorder = Recorder(record_dir)
 
         self.reset()
 
@@ -74,6 +79,10 @@ class GameState(object):
         self.terminal = False
         self.s_t = np.stack((x_t, x_t, x_t, x_t), axis=2)
 
+        if self.recorder:
+            self.recorder.init()
+            self.recorder.add(x_t)
+
     def process(self, action):
         # convert original 18 action index to minimal action set index
         real_action = self.real_actions[action]
@@ -83,6 +92,11 @@ class GameState(object):
         self.reward = r
         self.terminal = t
         self.s_t1 = np.append(self.s_t[:, :, 1:], x_t1, axis=2)
+
+        if self.recorder:
+            self.recorder.add(x_t1, action=action, reward=r)
+            if t:
+                self.recorder.flush()
 
     def update(self):
         self.s_t = self.s_t1

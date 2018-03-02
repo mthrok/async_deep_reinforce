@@ -29,7 +29,7 @@ def _main():
     else:
         print("Could not find old checkpoint")
 
-    game_state = GameState(0, display=True, no_op_max=0)
+    game_state = GameState(0, display=True, no_op_max=0, record_dir='record')
 
     while True:
         pi_values = global_network.run_policy(sess, game_state.s_t)
