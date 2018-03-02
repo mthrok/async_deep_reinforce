@@ -117,7 +117,7 @@ class A3CTrainingThread(object):
             self.episode_reward += reward
 
             # clip reward
-            rewards.append( np.clip(reward, -1, 1) )
+            rewards.append(np.clip(reward, -1, 1))
 
             self.local_t += 1
 
