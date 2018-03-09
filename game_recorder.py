@@ -2,11 +2,9 @@ from __future__ import print_function
 
 import os
 import errno
-import struct
-import tarfile
 import datetime
 
-from io import BytesIO
+import numpy as np
 
 
 class Recorder(object):
@@ -23,26 +21,25 @@ class Recorder(object):
 
     def init(self):
         self._objs = {
-            'state': BytesIO(),
-            'reward': BytesIO(),
-            'action': BytesIO(),
+            'state': [],
+            'reward': [],
+            'action': [],
         }
 
     def add(self, state, action=None, reward=None):
-        self._objs['state'].write(state.tobytes())
+        self._objs['state'].append(np.copy(state))
         if action is not None:
-            self._objs['action'].write(struct.pack('I', action))
+            self._objs['action'].append(action)
         if reward is not None:
-            self._objs['reward'].write(struct.pack('f', reward))
+            self._objs['reward'].append(reward)
 
     def flush(self):
-        filename = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M') + '.tgz'
+        filename = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.npz'
         filepath = os.path.join(self.dir_path, filename)
-
-        print('Saving record:', filepath)
-        with tarfile.open(name=filepath, mode='w:gz') as tarobj:
-            for key, value in self._objs.items():
-                tarinfo = tarfile.TarInfo(key)
-                tarinfo.size = value.tell()
-                value.seek(0)
-                tarobj.addfile(tarinfo, fileobj=value)
+        with open(filepath, 'wb') as fileobj:
+            np.savez_compressed(
+                fileobj,
+                state=np.asarray(self._objs['state']),
+                action=np.asarray(self._objs['action']),
+                reward=np.asarray(self._objs['reward']),
+            )

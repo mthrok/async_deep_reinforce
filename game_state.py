@@ -81,7 +81,7 @@ class GameState(object):
 
         if self.recorder:
             self.recorder.init()
-            self.recorder.add(x_t)
+            self.recorder.add(self._screen)
 
     def process(self, action):
         # convert original 18 action index to minimal action set index
@@ -94,7 +94,7 @@ class GameState(object):
         self.s_t1 = np.append(self.s_t[:, :, 1:], x_t1, axis=2)
 
         if self.recorder:
-            self.recorder.add(x_t1, action=action, reward=r)
+            self.recorder.add(self._screen, action=action, reward=r)
             if t:
                 self.recorder.flush()
 
